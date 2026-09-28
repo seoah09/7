@@ -25,16 +25,17 @@ END_DATE = "20260930"
 
 
 # =========================
-# 2. 후식 기준
+# 후식 기준
 # =========================
 
-DESSERT_KEYWORDS = [
-    # 과일
+# 과일은 단독으로 나왔을 때만 후식으로 인정
+FRUITS = [
     "사과",
     "배",
     "포도",
     "청포도",
     "골드키위",
+    "키위",
     "오렌지",
     "수박",
     "귤",
@@ -42,11 +43,25 @@ DESSERT_KEYWORDS = [
     "바나나",
     "복숭아",
     "메론",
-    "멜론",
+    "멜론"
+]
 
-    # 디저트
-    "푸딩",
-    "아이스크림",
+# 과일 뒤에 이런 단어가 붙으면 후식에서 제외
+FRUIT_EXCLUDE_WORDS = [
+    "샐러드",
+    "무침",
+    "소스",
+    "드레싱",
+    "볶음",
+    "조림",
+    "김치",
+    "겉절이"
+]
+
+# 과일이 아닌 후식
+DESSERT_KEYWORDS = [
+    # 빵 / 디저트
+    "빵",
     "케이크",
     "케익",
     "쿠키",
@@ -54,10 +69,12 @@ DESSERT_KEYWORDS = [
     "와플",
     "도넛",
     "마카롱",
+    "푸딩",
+    "아이스크림",
     "두쫀쿠",
     "감자빵",
 
-    # 음료 / 유제품
+    # 음료
     "요구르트",
     "요거트",
     "주스",
@@ -69,18 +86,17 @@ DESSERT_KEYWORDS = [
     "우유",
     "라떼",
 
-    # 기타 후식
+    # 기타
     "과일화채"
 ]
 
 
 # =========================
-# 3. 후식 여부 확인
+# 후식 여부 확인
 # =========================
 
 def has_dessert(menu):
 
-    # <br/> 기준으로 메뉴 분리
     foods = menu.replace("<br/>", "\n").split("\n")
 
     for food in foods:
@@ -90,13 +106,39 @@ def has_dessert(menu):
         # 알레르기 번호 제거
         food = food.split("(")[0].strip()
 
+        # -------------------------
+        # 1. 과일 판정
+        # -------------------------
+
+        for fruit in FRUITS:
+
+            if food == fruit:
+                return True
+
+            # 과일 + 다른 단어인 경우
+            if food.startswith(fruit):
+
+                # 샐러드, 무침 등이 붙으면 제외
+                excluded = False
+
+                for word in FRUIT_EXCLUDE_WORDS:
+                    if word in food:
+                        excluded = True
+                        break
+
+                if not excluded:
+                    return True
+
+        # -------------------------
+        # 2. 일반 후식 판정
+        # -------------------------
+
         for keyword in DESSERT_KEYWORDS:
 
             if keyword in food:
                 return True
 
     return False
-
 
 # =========================
 # 4. 나이스 API 요청
