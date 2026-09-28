@@ -96,7 +96,6 @@ DESSERT_KEYWORDS = [
     # 기타
     "과일화채"
 ]
-]
 
 
 # =========================
@@ -120,15 +119,16 @@ def has_dessert(menu):
 
         for fruit in FRUITS:
 
+            # 과일 이름만 단독으로 나온 경우
             if food == fruit:
                 return True
 
-            # 과일 + 다른 단어인 경우
+            # 과일 이름으로 시작하는 경우
             if food.startswith(fruit):
 
-                # 샐러드, 무침 등이 붙으면 제외
                 excluded = False
 
+                # 샐러드, 무침 등이 붙으면 제외
                 for word in FRUIT_EXCLUDE_WORDS:
                     if word in food:
                         excluded = True
